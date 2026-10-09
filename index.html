@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agritech Diplomacy & Geopolitics Intelligence Platform</title>
+  <meta name="description" content="Interactive strategic intelligence dashboard mapping food and fertilizer weaponization, supply choke points, and agritech resilience pathways based on the 2026 report." />
+  <meta property="og:title" content="Agritech Diplomacy & Geopolitics Intelligence Platform" />
+  <meta property="og:description" content="Interactive strategic intelligence dashboard mapping food and fertilizer weaponization, supply choke points, and agritech resilience pathways based on the 2026 report." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              850: '#111a2e',
+              950: '#070b14'
+            },
+            agri: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white">
+
+  <!-- Main App Layout: Sidebar + Content -->
+  <div class="flex flex-1 min-h-screen overflow-hidden">
+
+    <!-- Mobile Navigation Overlay Backdrop -->
+    <div id="mobile-backdrop" class="fixed inset-0 bg-black/60 z-30 hidden lg:hidden transition-opacity"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-slate-900 border-r border-slate-800 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out">
+      <!-- Sidebar Brand Header -->
+      <div class="p-5 border-b border-slate-800/80 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white font-bold">
+            <i data-lucide="sprout" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-slate-100 text-sm tracking-tight leading-tight">AGRITECH DIPLOMACY</h1>
+            <p class="text-[11px] text-emerald-400 font-mono tracking-wider uppercase">Strategic Geopolitics</p>
+          </div>
+        </div>
+        <button id="close-mobile-nav" class="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Report Context Banner -->
+      <div class="px-4 py-3 bg-slate-950/60 border-b border-slate-800/60 flex items-center gap-2 text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-slate-300 font-medium">October 2026 Intel Cycle</span>
+        <span class="ml-auto text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">v2.6</span>
+      </div>
+
+      <!-- Nav Links -->
+      <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+        <button data-tab="dashboard" class="nav-tab active-nav-tab w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-emerald-400 bg-slate-800/80 border border-slate-700/60 shadow-sm">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Dashboard Overview</span>
+          <span class="ml-auto text-[10px] font-mono bg-emerald-950/80 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-800/50">KPIs</span>
+        </button>
+
+        <button data-tab="map" class="nav-tab w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800/50">
+          <i data-lucide="globe" class="w-4 h-4"></i>
+          <span>Geopolitical Impact Map</span>
+          <span class="ml-auto text-[10px] font-mono bg-red-950/80 text-red-300 px-2 py-0.5 rounded-full border border-red-800/50">Hormuz</span>
+        </button>
+
+        <button data-tab="analytics" class="nav-tab w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800/50">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+          <span>Agritech Matrix & Charts</span>
+          <span class="ml-auto text-[10px] font-mono bg-blue-950/80 text-blue-300 px-2 py-0.5 rounded-full border border-blue-800/50">N-P-K</span>
+        </button>
+
+        <button data-tab="simulator" class="nav-tab w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800/50">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          <span>Diplomacy Simulator</span>
+          <span class="ml-auto text-[10px] font-mono bg-amber-950/80 text-amber-300 px-2 py-0.5 rounded-full border border-amber-800/50">Models</span>
+        </button>
+
+        <button data-tab="explorer" class="nav-tab w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800/50">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>Document Explorer</span>
+          <span class="ml-auto text-[10px] font-mono bg-purple-950/80 text-purple-300 px-2 py-0.5 rounded-full border border-purple-800/50">10 Ch</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Strategic Doctrine Footer -->
+      <div class="p-4 border-t border-slate-800/80 bg-slate-900/60">
+        <div class="bg-slate-950/80 rounded-xl p-3 border border-slate-800 text-xs">
+          <div class="flex items-center gap-1.5 text-emerald-400 font-semibold mb-1">
+            <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+            <span>The Strategic Equation</span>
+          </div>
+          <p class="text-slate-300 font-mono text-[11px] leading-relaxed">
+            <span class="text-amber-400 font-bold">Leverage</span> = Dependence &times; Non-Substitutability
+          </p>
+          <p class="text-slate-400 text-[10px] mt-1.5">
+            Agritech Diplomacy neutralizes coercion by localising high-value produce and diversifying agricultural inputs.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scrollbar">
+
+      <!-- Top Global Bar -->
+      <header class="sticky top-0 z-20 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button id="open-mobile-nav" class="lg:hidden p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="current-view-title" class="font-bold text-slate-100 text-base sm:text-lg">Dashboard Overview</span>
+              <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium bg-red-950/80 text-red-300 border border-red-800/50 px-2 py-0.5 rounded-full">
+                <i data-lucide="alert-triangle" class="w-3 h-3"></i> 2026 Hormuz Shock Live
+              </span>
+            </div>
+            <p id="current-view-subtitle" class="text-xs text-slate-400 hidden sm:block">Analytical intelligence synthesis based on the October 2026 Geopolitical Food & Fertilizer Report</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <!-- Quick Action Buttons -->
+          <button id="btn-quick-brief" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span class="hidden md:inline">Executive Brief</span>
+          </button>
+          <button id="btn-quick-stress" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-emerald-900/30 transition">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+            <span>Simulate Shocks</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- View Containers -->
+      <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-8">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: DASHBOARD OVERVIEW                 -->
+        <!-- ========================================== -->
+        <section id="view-dashboard" class="view-panel space-y-6 fade-in-content">
+          
+          <!-- Hero Briefing Banner -->
+          <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 p-6 sm:p-8 shadow-xl">
+            <div class="absolute -right-12 -top-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10 max-w-4xl space-y-3">
+              <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 text-xs font-mono">
+                <i data-lucide="radio" class="w-3 h-3 text-emerald-400 animate-pulse"></i> Case Study Report | 9 October 2026
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                The Geopolitics of Food and Fertilizer
+              </h2>
+              <p class="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+                Between 2020 and 2026, the invasion of Ukraine, cascades of agricultural export bans, and the 
+                <span class="text-amber-300 font-semibold">2026 closure of the Strait of Hormuz</span> demonstrated that food and fertilizer inputs are potent geopolitical levers. 
+                Lasting strategic protection comes not from multilateral goodwill, but by reducing the <span class="text-emerald-400 font-semibold">substitutability gap</span> via Agritech Diplomacy.
+              </p>
+              <div class="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-400">
+                <span class="flex items-center gap-1.5"><i data-lucide="anchor" class="w-4 h-4 text-rose-400"></i> Hormuz & Black Sea Choke Points</span>
+                <span class="flex items-center gap-1.5"><i data-lucide="layers" class="w-4 h-4 text-blue-400"></i> N-P-K Oligopolistic Concentration</span>
+                <span class="flex items-center gap-1.5"><i data-lucide="cpu" class="w-4 h-4 text-emerald-400"></i> CEA & Closed-Loop Solutions</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI Cards Grid (Directly from PDF Figures 1, 2, 3 and Text) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            
+            <!-- KPI 1 -->
+            <div class="card-glow-subtle bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-slate-400 tracking-wide uppercase">UN SOFI 2026</span>
+                <span class="p-2 rounded-lg bg-amber-950/60 text-amber-400 border border-amber-800/40">
+                  <i data-lucide="users" class="w-4 h-4"></i>
+                </span>
+              </div>
+              <div>
+                <div class="text-3xl font-black text-white tracking-tight">645M</div>
+                <div class="text-xs text-slate-300 mt-1">People facing chronic hunger (2025)</div>
+              </div>
+              <div class="text-[11px] text-emerald-400 flex items-center gap-1 pt-1 border-t border-slate-800/80">
+                <i data-lucide="arrow-down-right" class="w-3.5 h-3.5"></i>
+                <span>-43M from 2022 peak (688M); still far from 2030 SDG 2</span>
+              </div>
+            </div>
+
+            <!-- KPI 2 -->
+            <div class="card-glow-subtle bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-slate-400 tracking-wide uppercase">GRFC 2026 Report</span>
+                <span class="p-2 rounded-lg bg-red-950/60 text-red-400 border border-red-800/40">
+                  <i data-lucide="flame" class="w-4 h-4"></i>
+                </span>
+              </div>
+              <div>
+                <div class="text-3xl font-black text-rose-400 tracking-tight">266M</div>
+                <div class="text-xs text-slate-300 mt-1">Acute food insecurity across 47 nations</div>
+              </div>
+              <div class="text-[11px] text-rose-300 flex items-center gap-1 pt-1 border-t border-slate-800/80">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                <span>2 confirmed famines (Gaza & Sudan IPC 5)</span>
+              </div>
+            </div>
+
+            <!-- KPI 3 -->
+            <div class="card-glow-subtle bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-slate-400 tracking-wide uppercase">2026 Hormuz Shock</span>
+                <span class="p-2 rounded-lg bg-orange-950/60 text-orange-400 border border-orange-800/40">
+                  <i data-lucide="navigation" class="w-4 h-4"></i>
+                </span>
+              </div>
+              <div>
+                <div class="text-3xl font-black text-amber-400 tracking-tight">~20%</div>
+                <div class="text-xs text-slate-300 mt-1">Traded nitrogen & sulfur offline</div>
+              </div>
+              <div class="text-[11px] text-amber-300 flex items-center gap-1 pt-1 border-t border-slate-800/80">
+                <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                <span>Urea hit $700/t; World Bank: +31% input cost in 2026</span>
+              </div>
+            </div>
+
+            <!-- KPI 4 -->
+            <div class="card-glow-subtle bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-slate-400 tracking-wide uppercase">IFPRI Calorie Tracker</span>
+                <span class="p-2 rounded-lg bg-blue-950/60 text-blue-400 border border-blue-800/40">
+                  <i data-lucide="lock" class="w-4 h-4"></i>
+                </span>
+              </div>
+              <div>
+                <div class="text-3xl font-black text-blue-400 tracking-tight">17%</div>
+                <div class="text-xs text-slate-300 mt-1">Traded calories restricted at peak</div>
+              </div>
+              <div class="text-[11px] text-slate-400 flex items-center gap-1 pt-1 border-t border-slate-800/80">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i>
+                <span>Cascading export bans & quotas (India, Russia, etc.)</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Interactive Live Stress Tests & Deep-Dive Panels -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Deep Dive: 2026 Hormuz Crisis Box -->
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-3 h-3 rounded-full bg-red-500 animate-ping"></div>
+                  <h3 class="font-bold text-slate-100 text-base">Box A: The 2026 Hormuz Fertilizer Shock Live Stress Test</h3>
+                </div>
+                <span class="text-xs px-2.5 py-1 rounded-md bg-red-950/80 text-red-300 font-mono border border-red-800/60">WTO-AXSMarine / Argus / IFPRI</span>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
+                <div class="space-y-3 bg-slate-950/60 p-4 rounded-lg border border-slate-800/60">
+                  <h4 class="font-semibold text-amber-400 flex items-center gap-1.5 text-sm">
+                    <i data-lucide="zap" class="w-4 h-4"></i> Incident Chronology & Impact
+                  </h4>
+                  <p class="leading-relaxed">
+                    Following the war outbreak on <span class="text-white font-medium">28 February 2026</span> involving the US, Israel, and Iran, commercial maritime transit through Hormuz collapsed. Roughly one-third of global fertilizer trade was exposed.
+                  </p>
+                  <p class="leading-relaxed">
+                    Pre-war share: <span class="text-white font-medium">~20% of traded nitrogen</span> and a large share of sulfur (crucial for phosphate). Fertilizer shipments remained near zero through early September 2026 despite an 8 April ceasefire.
+                  </p>
+                </div>
+
+                <div class="space-y-3 bg-slate-950/60 p-4 rounded-lg border border-slate-800/60">
+                  <h4 class="font-semibold text-rose-400 flex items-center gap-1.5 text-sm">
+                    <i data-lucide="crosshair" class="w-4 h-4"></i> Direct Country Exposures
+                  </h4>
+                  <ul class="space-y-1.5 text-slate-300">
+                    <li class="flex items-start gap-1.5">
+                      <span class="text-emerald-400 font-bold">&bull;</span>
+                      <span><strong class="text-white">India:</strong> Sources over 40% of its urea and phosphate from the Middle East.</span>
+                    </li>
+                    <li class="flex items-start gap-1.5">
+                      <span class="text-emerald-400 font-bold">&bull;</span>
+                      <span><strong class="text-white">Brazil:</strong> Imports nearly all its urea, ~50% normally routed via Hormuz.</span>
+                    </li>
+                    <li class="flex items-start gap-1.5">
+                      <span class="text-emerald-400 font-bold">&bull;</span>
+                      <span><strong class="text-white">Mercy Corps Frontlines:</strong> Knock-on stress across Sudan, Somalia, Ethiopia, Pakistan, Myanmar, Lebanon.</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Price Benchmark Barometer -->
+              <div class="bg-slate-950 p-4 rounded-lg border border-slate-800">
+                <div class="flex justify-between items-center text-xs mb-2">
+                  <span class="text-slate-400 font-medium">Urea Export Price Dynamic (Argus / Reuters Benchmark, US$/tonne)</span>
+                  <span class="font-mono text-emerald-400">Current: ~$443/t (Eased by China quota release)</span>
+                </div>
+                <div class="relative w-full bg-slate-800 rounded-full h-4 overflow-hidden flex">
+                  <div class="bg-slate-600 h-full text-[10px] text-white flex items-center justify-center font-mono" style="width: 35%" title="Pre-War Baseline: ~$280/t">Pre-War $280</div>
+                  <div class="bg-emerald-600 h-full text-[10px] text-white flex items-center justify-center font-mono" style="width: 25%" title="Sept 2026 Eased: $443/t">Sep $443</div>
+                  <div class="bg-red-600 h-full text-[10px] text-white flex items-center justify-center font-mono" style="width: 40%" title="March 2026 Peak: ~$700/t">Peak $700</div>
+                </div>
+                <div class="flex justify-between text-[11px] text-slate-400 mt-2">
+                  <span>Pre-war: ~$280-320/t</span>
+                  <span class="text-red-400 font-medium">March Peak: ~$700/t (+130%)</span>
+                  <span class="text-emerald-400 font-medium">China Quota Relaxed (5-5.5 Mt): ~$443/t</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Strategic Framework Summary -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col justify-between space-y-4">
+              <div>
+                <h3 class="font-bold text-slate-100 text-base mb-1 flex items-center gap-2">
+                  <i data-lucide="compass" class="w-4 h-4 text-emerald-400"></i>
+                  The Agritech Diplomacy Pathway
+                </h3>
+                <p class="text-xs text-slate-400 mb-4">4-Stage model moving states from vulnerable hostage to autonomy (PDF Chapter 8.2):</p>
+                
+                <div class="space-y-2.5 text-xs">
+                  <div class="p-2.5 rounded-lg bg-red-950/40 border border-red-900/40 flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-red-900 text-red-200 flex items-center justify-center font-bold text-[10px] shrink-0">1</span>
+                    <div>
+                      <span class="font-semibold text-red-300">Dependency</span>
+                      <p class="text-slate-400 text-[11px]">Concentrated suppliers, export bans, single maritime choke point vulnerability.</p>
+                    </div>
+                  </div>
+
+                  <div class="p-2.5 rounded-lg bg-amber-950/40 border border-amber-900/40 flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-amber-900 text-amber-200 flex items-center justify-center font-bold text-[10px] shrink-0">2</span>
+                    <div>
+                      <span class="font-semibold text-amber-300">Technology Transfer</span>
+                      <p class="text-slate-400 text-[11px]">Drip irrigation, climate-smart seeds, precision CEA greenhouses, digital extension.</p>
+                    </div>
+                  </div>
+
+                  <div class="p-2.5 rounded-lg bg-blue-950/40 border border-blue-900/40 flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-blue-900 text-blue-200 flex items-center justify-center font-bold text-[10px] shrink-0">3</span>
+                    <div>
+                      <span class="font-semibold text-blue-300">Localise & Blends</span>
+                      <p class="text-slate-400 text-[11px]">Regional fertilizer blending, biofertilizers, renewable-powered microgrids.</p>
+                    </div>
+                  </div>
+
+                  <div class="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-900/40 flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-emerald-900 text-emerald-200 flex items-center justify-center font-bold text-[10px] shrink-0">4</span>
+                    <div>
+                      <span class="font-semibold text-emerald-300">Strategic Resilience</span>
+                      <p class="text-slate-400 text-[11px]">Diversified suppliers, 90-120 day buffer stocks, zero single-supplier coercive power.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button data-switch-to="simulator" class="w-full py-2.5 bg-slate-800 hover:bg-slate-750 text-slate-200 hover:text-white rounded-lg border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition">
+                <span>Test Strategic Resilience in Simulator</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Bottom Summary Charts: Historical Food Index & Recent Coercion Incidents -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Historical Food Price Index Step-Up -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm">Figure 2: FAO Food Price Index (2014-2024 Step-Up)</h3>
+                  <p class="text-xs text-slate-400">Structural upward shift post-2020 (Baseline 2014-2016 = 100)</p>
+                </div>
+                <span class="text-xs bg-slate-800 text-slate-300 font-mono px-2 py-0.5 rounded border border-slate-700">Annual Avg</span>
+              </div>
+              <div class="h-64 relative">
+                <canvas id="faoIndexChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Recent Agricultural Coercion Cases (Table from Chapter 2.2 / 3.3) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm">Catalog of Agricultural Coercion Instruments</h3>
+                  <p class="text-xs text-slate-400">Recurring patterns of denial, conditionality, and retaliatory levers</p>
+                </div>
+                <button data-switch-to="explorer" class="text-xs text-emerald-400 hover:underline flex items-center gap-1">
+                  View Cases <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <div class="space-y-2 overflow-y-auto max-h-64 custom-scrollbar pr-1 text-xs">
+                
+                <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold text-slate-200">Export Bans & Quotas</div>
+                    <div class="text-slate-400 text-[11px]">India wheat (2022) & rice (2023-24); Indonesia palm oil (2022)</div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 font-mono text-[10px]">Supply Shock</span>
+                </div>
+
+                <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold text-slate-200">Corridor Conditionality</div>
+                    <div class="text-slate-400 text-[11px]">Black Sea Grain Initiative (2022-23); SWIFT reconnection leverage</div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 font-mono text-[10px]">60-Day Leash</span>
+                </div>
+
+                <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold text-slate-200">Sanctions & Transit Cutoff</div>
+                    <div class="text-slate-400 text-[11px]">Belaruskali potash via Lithuania (2021-22); EU/US sanctions</div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded bg-blue-950 text-blue-300 font-mono text-[10px]">Logistics Reroute</span>
+                </div>
+
+                <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold text-slate-200">Regulatory Pretexts & Inspections</div>
+                    <div class="text-slate-400 text-[11px]">China phosphate/urea custom inspection halts (2021-26); China-PH bananas</div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 font-mono text-[10px]">Phytosanitary</span>
+                </div>
+
+                <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold text-slate-200">Self-Inflicted Dependency Shock</div>
+                    <div class="text-slate-400 text-[11px]">Sri Lanka 2021 abrupt organic ban; rice output plunged ~20%</div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded bg-red-950 text-red-300 font-mono text-[10px]">Policy Caution</span>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: GEOPOLITICAL IMPACT MAP (LEAFLET)  -->
+        <!-- ========================================== -->
+        <section id="view-map" class="view-panel space-y-6 hidden fade-in-content">
+          
+          <!-- Map Header & Filter Controls -->
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 rounded-xl">
+            <div>
+              <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-5 h-5 text-emerald-400"></i>
+                Interactive Global Geopolitical & Agritech Trade Map
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">Click any node, maritime choke point, or country to inspect vulnerability profiles and transmission channels.</p>
+            </div>
+
+            <!-- Layer Filter Buttons -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="text-slate-400 text-[11px] font-mono mr-1">Filter Layers:</span>
+              <button id="map-filter-all" class="map-layer-btn active px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-medium">All Assets</button>
+              <button id="map-filter-chokepoints" class="map-layer-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700">Choke Points</button>
+              <button id="map-filter-importers" class="map-layer-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700">Vulnerable Importers</button>
+              <button id="map-filter-exporters" class="map-layer-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700">Major Exporters</button>
+              <button id="map-filter-agritech" class="map-layer-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700">Agritech Hubs</button>
+            </div>
+          </div>
+
+          <!-- Map & Side Detail Panel Layout -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Leaflet Map Container -->
+            <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl relative">
+              <div id="geopoliticalMap" class="w-full h-[620px] z-10"></div>
+              
+              <!-- Map Legend Overlay -->
+              <div class="absolute bottom-4 left-4 z-20 bg-slate-950/90 backdrop-blur p-3 rounded-lg border border-slate-800 text-xs space-y-1.5 shadow-xl pointer-events-auto max-w-xs">
+                <div class="font-semibold text-slate-200 text-[11px] uppercase tracking-wider">Map Legend</div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500 border border-red-300"></span> <span>Strategic Choke Point (Maritime / Rail)</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 border border-amber-300"></span> <span>High Vulnerability Importer (MENA / Horn)</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500 border border-blue-300"></span> <span>Major Commodity / Fertilizer Exporter</span></div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 border border-emerald-300"></span> <span>Agritech Innovation & Donor Hub</span></div>
+                <div class="flex items-center gap-2"><span class="w-4 h-0.5 bg-red-400"></span> <span class="text-[10px] text-slate-400">Disrupted Fertilizer Corridor (Hormuz)</span></div>
+                <div class="flex items-center gap-2"><span class="w-4 h-0.5 bg-cyan-400"></span> <span class="text-[10px] text-slate-400">Black Sea Wheat Route</span></div>
+              </div>
+            </div>
+
+            <!-- Detail Intelligence Sidebar -->
+            <div id="map-detail-card" class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+              <div class="border-b border-slate-800 pb-3 flex items-start justify-between">
+                <div>
+                  <span id="detail-category" class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-800/60">Maritime Choke Point</span>
+                  <h3 id="detail-title" class="text-xl font-bold text-white mt-1">Strait of Hormuz</h3>
+                  <p id="detail-location" class="text-xs text-slate-400">Persian Gulf / Arabian Sea</p>
+                </div>
+                <div id="detail-status-pill" class="text-xs px-2 py-0.5 rounded-full bg-red-900/60 text-red-200 border border-red-700">
+                  Critical Active Shock
+                </div>
+              </div>
+
+              <!-- Metric stats grid -->
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 text-[10px] block">Global Trade Share</span>
+                  <span id="detail-stat-1" class="font-bold text-slate-100 text-sm">~20% Nitrogen</span>
+                </div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 text-[10px] block">Coercion / Disruption Risk</span>
+                  <span id="detail-stat-2" class="font-bold text-rose-400 text-sm">Extreme (High)</span>
+                </div>
+              </div>
+
+              <!-- Description & Narrative -->
+              <div class="space-y-3 text-xs text-slate-300">
+                <div>
+                  <h4 class="font-semibold text-slate-200 mb-1 flex items-center gap-1.5 text-xs">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i> Strategic Significance
+                  </h4>
+                  <p id="detail-desc" class="text-slate-300 text-xs leading-relaxed">
+                    Closed during the 2026 conflict. Handles roughly one-fifth of globally traded nitrogen (urea/ammonia) and major sulfur feedstock shipments from Gulf producers. India sources &gt;40% and Brazil imports ~50% of their urea via this strait.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-slate-200 mb-1 flex items-center gap-1.5 text-xs">
+                    <i data-lucide="radio" class="w-3.5 h-3.5 text-amber-400"></i> Transmission & Vulnerabilities
+                  </h4>
+                  <p id="detail-transmission" class="text-slate-400 text-xs leading-relaxed">
+                    Triggered acute urea price doubles to $700/tonne in March 2026. World Bank projects +31% input price shock. Knock-on hunger risks in Sudan, Somalia, Ethiopia, Pakistan.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-emerald-400 mb-1 flex items-center gap-1.5 text-xs">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Agritech Diplomatic Solution
+                  </h4>
+                  <p id="detail-solution" class="text-slate-300 text-xs leading-relaxed">
+                    Accelerate domestic green ammonia projects (decoupling N from natural gas), regional fertilizer blending plants (e.g. OCP in Africa), and 10-20% precision fertilizer efficiency cutting synthetic demand.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Action Link -->
+              <div class="pt-2 border-t border-slate-800">
+                <button id="btn-inspect-in-explorer" class="w-full py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition">
+                  <i data-lucide="file-search" class="w-3.5 h-3.5"></i>
+                  <span>Read Full Chapter Analysis</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: AGRITECH MATRIX & CHARTS           -->
+        <!-- ========================================== -->
+        <section id="view-analytics" class="view-panel space-y-6 hidden fade-in-content">
+          
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="bar-chart-2" class="w-5 h-5 text-emerald-400"></i>
+                Agritech Analytics & Empirical Matrix
+              </h2>
+              <p class="text-xs text-slate-400">Extracted datasets from USGS, FAO, IFPRI, and Barbosa et al. (2015)</p>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-slate-400 font-mono">Data Source:</span>
+              <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700">Report Figures 1, 3, 4, 6</span>
+            </div>
+          </div>
+
+          <!-- Grid of Main Analytical Charts -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Chart 1: Nutrient Production Concentration (Figure 3) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm">Figure 3: Global Production Shares of the 3 Macronutrients</h3>
+                  <p class="text-xs text-slate-400">Oligopoly concentration creates high-leverage choke points (USGS-based)</p>
+                </div>
+                <div class="flex items-center gap-1 bg-slate-800 p-1 rounded-lg text-xs">
+                  <button id="btn-nut-all" class="nutrient-toggle active px-2 py-0.5 rounded bg-emerald-600 text-white font-medium text-[11px]">All</button>
+                  <button id="btn-nut-n" class="nutrient-toggle px-2 py-0.5 rounded text-slate-300 text-[11px]">Nitrogen</button>
+                  <button id="btn-nut-p" class="nutrient-toggle px-2 py-0.5 rounded text-slate-300 text-[11px]">Phosphate</button>
+                  <button id="btn-nut-k" class="nutrient-toggle px-2 py-0.5 rounded text-slate-300 text-[11px]">Potash</button>
+                </div>
+              </div>
+              <div class="h-64 relative">
+                <canvas id="nutrientConcentrationChart"></canvas>
+              </div>
+              <div class="p-3 bg-slate-950/80 rounded-lg border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                <div class="font-semibold text-slate-200">Key Geological Reality:</div>
+                <p>&bull; <strong class="text-emerald-400">Potash (K):</strong> Canada (33%), Russia (19%), Belarus (16%) account for &gt;68% of global supply.</p>
+                <p>&bull; <strong class="text-amber-400">Phosphate (P):</strong> China 43%; Morocco's OCP holds roughly 70% of world rock reserves.</p>
+                <p>&bull; <strong class="text-blue-400">Nitrogen (N):</strong> Tied 70-90% to natural gas costs; concentrated in Gulf & Eurasian hubs.</p>
+              </div>
+            </div>
+
+            <!-- Chart 2: Climate Stress vs Import Dependence Matrix (Figure 4) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm">Figure 4: Coercion Exposure Matrix (Author's Qualitative Assessment)</h3>
+                  <p class="text-xs text-slate-400">Overlap of Import Dependence (X) & Climate Water Stress / Low Adaptive Capacity (Y)</p>
+                </div>
+                <span class="text-xs px-2 py-0.5 rounded bg-red-950/80 text-rose-300 border border-red-800/40 font-mono">1-10 Scale</span>
+              </div>
+              <div class="h-64 relative">
+                <canvas id="exposureMatrixChart"></canvas>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+                <span>Top-Right Quadrant = Maximum Coercion & Famine Risk (Somalia, Yemen, Sudan, Egypt)</span>
+                <span class="text-amber-400">GCC = High Import, Low Adaptive Strain</span>
+              </div>
+            </div>
+
+            <!-- Chart 3: Hydroponics vs Open Field Trade-Offs (Figure 6 Barbosa et al.) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm">Figure 6: Controlled Agriculture (CEA) vs Open-Field</h3>
+                  <p class="text-xs text-slate-400">Lettuce life-cycle: Yield vs Water vs Energy (Barbosa et al., 2015)</p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button id="toggle-cea-scale" class="text-xs px-2 py-1 rounded bg-slate-800 hover:bg-slate-750 text-slate-300 font-mono border border-slate-700">
+                    Switch to Linear
+                  </button>
+                </div>
+              </div>
+              <div class="h-64 relative">
+                <canvas id="ceaComparisonChart"></canvas>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 text-[10px] block">Yield Advantage</span>
+                  <span class="text-emerald-400 font-bold text-sm">10.5&times; Area Yield</span>
+                  <span class="text-[10px] text-slate-400 block">41 vs 3.9 kg/m²/yr</span>
+                </div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 text-[10px] block">Water Efficiency</span>
+                  <span class="text-blue-400 font-bold text-sm">-92% Water Used</span>
+                  <span class="text-[10px] text-slate-400 block">20 vs 250 L/kg</span>
+                </div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 text-[10px] block">Energy Cost Trade-Off</span>
+                  <span class="text-amber-400 font-bold text-sm">82&times; Energy</span>
+                  <span class="text-[10px] text-slate-400 block">90k vs 1.1k kJ/kg (HVAC)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Technical Comparison Matrix (Chapter 9.3 Table) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm">Table 9.3: Farming System Comparative Matrix</h3>
+                  <p class="text-xs text-slate-400">Direct trade-off breakdown from Chapter 9 of the Report</p>
+                </div>
+                <span class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">3 Systems</span>
+              </div>
+
+              <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="border-b border-slate-800 text-slate-400 text-[11px]">
+                      <th class="py-2 pr-3">Dimension</th>
+                      <th class="py-2 px-3 text-slate-300">Open-Field</th>
+                      <th class="py-2 px-3 text-emerald-300">Hydroponics</th>
+                      <th class="py-2 pl-3 text-cyan-300">Aquaponics</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-800/60 text-slate-300 text-[11px]">
+                    <tr>
+                      <td class="py-2 font-medium text-slate-400">Water use</td>
+                      <td class="py-2 px-3 text-red-400 font-medium">High (250 L/kg)</td>
+                      <td class="py-2 px-3 text-emerald-400 font-medium">Very low (-92%)</td>
+                      <td class="py-2 pl-3 text-cyan-400 font-medium">Recirculating (&gt;95%)</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 font-medium text-slate-400">Fertilizer</td>
+                      <td class="py-2 px-3">Large synthetic N-P-K</td>
+                      <td class="py-2 px-3">Precise mineral salts</td>
+                      <td class="py-2 pl-3">Fish waste bio-loop</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 font-medium text-slate-400">Energy input</td>
+                      <td class="py-2 px-3 text-emerald-400">Low baseline</td>
+                      <td class="py-2 px-3 text-amber-400">High (HVAC / LEDs)</td>
+                      <td class="py-2 pl-3 text-amber-400">High (Pumps / Aeration)</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 font-medium text-slate-400">Main output</td>
+                      <td class="py-2 px-3">Bulk staples & grain</td>
+                      <td class="py-2 px-3">Fresh produce & fodder</td>
+                      <td class="py-2 pl-3">Vegetables + Fish protein</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 font-medium text-slate-400">Vulnerability</td>
+                      <td class="py-2 px-3">Weather, soil, drought</td>
+                      <td class="py-2 px-3">Power loss, mineral salt</td>
+                      <td class="py-2 pl-3">Fish feed supply, power</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Aquaponics Closed-Loop Visual Concept -->
+              <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-2">
+                <span class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-cyan-400"></i> Aquaponics Nitrogen Biofilter Cascade (Figure 7)
+                </span>
+                <div class="flex items-center justify-between text-[11px] text-slate-300 font-mono py-1 px-2 bg-slate-900 rounded border border-slate-800">
+                  <span class="text-amber-300 font-semibold">Fish Tank (Ammonia)</span>
+                  <span class="text-slate-500">&rarr;</span>
+                  <span class="text-purple-300 font-semibold">Biofilter (Nitrite&rarr;Nitrate)</span>
+                  <span class="text-slate-500">&rarr;</span>
+                  <span class="text-emerald-300 font-semibold">Plant Bed Uptake</span>
+                  <span class="text-slate-500">&rarr;</span>
+                  <span class="text-cyan-300 font-semibold">Clean Water Return</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 4: POLICY & DIPLOMACY SIMULATOR       -->
+        <!-- ========================================== -->
+        <section id="view-simulator" class="view-panel space-y-6 hidden fade-in-content">
+          
+          <div class="border-b border-slate-800 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="sliders" class="w-5 h-5 text-emerald-400"></i>
+                Policy & Geopolitical Stress-Test Simulator
+              </h2>
+              <p class="text-xs text-slate-400">Model strategic outcomes: adjust national defense levers against geopolitical food & fertilizer supply shocks.</p>
+            </div>
+            <button id="btn-reset-simulator" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 flex items-center gap-1.5 self-start">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset to Defaults
+            </button>
+          </div>
+
+          <!-- Scenario Selection Bar -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-5 space-y-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i>
+              Select Historical or Active Geopolitical Shock Scenario:
+            </span>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              
+              <button data-scenario="hormuz" class="sim-scenario-btn active text-left p-3 rounded-lg bg-slate-800 border-2 border-emerald-500/80 transition-all space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-xs text-white">2026 Hormuz Closure</span>
+                  <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                </div>
+                <p class="text-[11px] text-slate-300">20% N & sulfur blocked. Urea prices jump to $700/t.</p>
+              </button>
+
+              <button data-scenario="blacksea" class="sim-scenario-btn text-left p-3 rounded-lg bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition-all space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-xs text-slate-200">Black Sea Blockade</span>
+                  <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                </div>
+                <p class="text-[11px] text-slate-400">BSGI collapse, 30% global wheat exports stranded.</p>
+              </button>
+
+              <button data-scenario="cascade" class="sim-scenario-btn text-left p-3 rounded-lg bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition-all space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-xs text-slate-200">Cascading Export Bans</span>
+                  <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                </div>
+                <p class="text-[11px] text-slate-400">17% global calories banned. Panic price contagion.</p>
+              </button>
+
+              <button data-scenario="climate" class="sim-scenario-btn text-left p-3 rounded-lg bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition-all space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-xs text-slate-200">Synchronous Climate Shock</span>
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                </div>
+                <p class="text-[11px] text-slate-400">Multi-breadbasket drought across India, Sahel, Med.</p>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Simulator Interactive Workspace: Sliders on Left, Live Projections on Right -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Control Levers (Left) -->
+            <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-5">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                  <i data-lucide="settings-2" class="w-4 h-4 text-emerald-400"></i>
+                  National & Regional Resilience Levers
+                </h3>
+                <button id="btn-apply-optimal" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Apply Optimal Policy
+                </button>
+              </div>
+
+              <!-- Lever 1: Strategic Buffer Stock -->
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs">
+                  <span class="font-semibold text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="package" class="w-3.5 h-3.5 text-amber-400"></i> Strategic Cereal Buffer Stocks
+                  </span>
+                  <span id="label-stock" class="font-mono text-emerald-400 font-bold">45 Days</span>
+                </div>
+                <input id="slider-stock" type="range" min="15" max="180" step="5" value="45" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-500">
+                  <span>15 Days (Vulnerable)</span>
+                  <span class="text-emerald-500">Recommended: 90-120 Days</span>
+                  <span>180 Days (High Fiscal Cost)</span>
+                </div>
+              </div>
+
+              <!-- Lever 2: CEA Produce Share -->
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs">
+                  <span class="font-semibold text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="leaf" class="w-3.5 h-3.5 text-emerald-400"></i> CEA / Hydroponic Share of Fresh Produce
+                  </span>
+                  <span id="label-cea" class="font-mono text-emerald-400 font-bold">12%</span>
+                </div>
+                <input id="slider-cea" type="range" min="0" max="60" step="2" value="12" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-500">
+                  <span>0% (Import Dependent)</span>
+                  <span>Target: 25-40% Peri-Urban</span>
+                  <span>60% (High Capital)</span>
+                </div>
+              </div>
+
+              <!-- Lever 3: Precision Fertilizer & Bioblends -->
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs">
+                  <span class="font-semibold text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="flask-conical" class="w-3.5 h-3.5 text-blue-400"></i> Fertilizer Efficiency & Regional Blending
+                  </span>
+                  <span id="label-fert" class="font-mono text-emerald-400 font-bold">15% Reduction</span>
+                </div>
+                <input id="slider-fert" type="range" min="0" max="35" step="1" value="15" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-500">
+                  <span>0% Baseline</span>
+                  <span class="text-blue-400">10-20% via soil testing</span>
+                  <span>35% (Green Ammonia + Legume)</span>
+                </div>
+              </div>
+
+              <!-- Lever 4: Supplier Diversification (Origins) -->
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs">
+                  <span class="font-semibold text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="share-2" class="w-3.5 h-3.5 text-purple-400"></i> Qualified Import Origin Diversification
+                  </span>
+                  <span id="label-origins" class="font-mono text-emerald-400 font-bold">2 Origins</span>
+                </div>
+                <input id="slider-origins" type="range" min="1" max="5" step="1" value="2" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-500">
+                  <span>1 (Single Point of Failure)</span>
+                  <span class="text-purple-400">Minimum Rec: 3+ Origins</span>
+                  <span>5 (Full Redundancy)</span>
+                </div>
+              </div>
+
+              <!-- Lever 5: Clean Renewable Coupling -->
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs">
+                  <span class="font-semibold text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="sun" class="w-3.5 h-3.5 text-yellow-400"></i> Solar & Renewable Power for Farm HVAC
+                  </span>
+                  <span id="label-solar" class="font-mono text-emerald-400 font-bold">30%</span>
+                </div>
+                <input id="slider-solar" type="range" min="0" max="100" step="5" value="30" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-slate-500">
+                  <span>0% (Grid/Gas Vulnerable)</span>
+                  <span>Independent Microgrids</span>
+                  <span>100% Autonomous</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Predicted Real-Time Impact (Right) -->
+            <div class="lg:col-span-6 space-y-4">
+              
+              <!-- Resilience Index Gauge Card -->
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="font-bold text-white text-base">Vulnerability & Coercion Resistance Score</h3>
+                    <p class="text-xs text-slate-400">Dynamic computation of: Leverage = Dependence &times; Non-Substitutability</p>
+                  </div>
+                  <div id="sim-verdict-badge" class="px-2.5 py-1 rounded-full text-xs font-bold font-mono bg-amber-950 text-amber-300 border border-amber-800">
+                    Moderate Risk
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <div class="flex justify-between text-xs">
+                    <span class="text-slate-300 font-medium">Strategic Autonomy Index</span>
+                    <span id="score-autonomy" class="font-bold font-mono text-emerald-400 text-lg">56 / 100</span>
+                  </div>
+                  <div class="w-full bg-slate-950 rounded-full h-3 border border-slate-800 overflow-hidden">
+                    <div id="bar-autonomy" class="h-full bg-gradient-to-r from-red-500 via-amber-500 to-emerald-500 transition-all duration-300" style="width: 56%"></div>
+                  </div>
+                </div>
+
+                <!-- Simulation Output Metrics -->
+                <div class="grid grid-cols-2 gap-3 pt-2 text-xs">
+                  <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <span class="text-slate-400 text-[10px] block">Import Bill Inflation Shock</span>
+                    <span id="metric-inflation" class="text-lg font-black text-rose-400">+28.4%</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">FX drain & subsidy pressure</span>
+                  </div>
+
+                  <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <span class="text-slate-400 text-[10px] block">Population at Acute Risk</span>
+                    <span id="metric-population" class="text-lg font-black text-amber-400">18.5M</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Bread & nutrition insecurity</span>
+                  </div>
+
+                  <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <span class="text-slate-400 text-[10px] block">Water Saved via Closed-Loop</span>
+                    <span id="metric-water" class="text-lg font-black text-blue-400">142M m³</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Aquifer depletion relieved</span>
+                  </div>
+
+                  <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <span class="text-slate-400 text-[10px] block">Synthetic N Import Cut</span>
+                    <span id="metric-fertcut" class="text-lg font-black text-emerald-400">-15.0%</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Hormuz/gas price hedge</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Strategic Analytical Assessment -->
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+                <h4 class="font-bold text-slate-200 text-xs uppercase tracking-wider flex items-center gap-2">
+                  <i data-lucide="clipboard-check" class="w-4 h-4 text-emerald-400"></i>
+                  Strategist Policy Evaluation & Recommendation
+                </h4>
+                <p id="sim-evaluation-text" class="text-xs text-slate-300 leading-relaxed">
+                  Under the active <strong class="text-white">2026 Hormuz Closure</strong>, current buffer stocks of 45 days will be exhausted before alternative rail or Cape routes stabilize. Increasing qualified origins to 3 and ramping peri-urban hydroponic greens to 25% reduces foreign exchange drain by 34% and prevents food-basket riots.
+                </p>
+                <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px] text-slate-400 flex items-center gap-2">
+                  <i data-lucide="lightbulb" class="w-4 h-4 text-amber-400 shrink-0"></i>
+                  <span><strong>Report Lesson:</strong> Never enact abrupt input bans without proven substitutes (Sri Lanka 2021). Deploy precision soil testing first.</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 5: DOCUMENT EXPLORER (KNOWLEDGE BASE) -->
+        <!-- ========================================== -->
+        <section id="view-explorer" class="view-panel space-y-6 hidden fade-in-content">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
+                Document Knowledge Base & Analytical Repository
+              </h2>
+              <p class="text-xs text-slate-400">Comprehensive structured synthesis of all 10 chapters and data appendix from the October 2026 Report.</p>
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative w-full sm:w-72">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+              <input id="explorer-search" type="text" placeholder="Search chapters, data, case studies..." class="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
+            </div>
+          </div>
+
+          <!-- Quick Topic Pills Filter -->
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-400 font-mono text-[11px]">Filter Topic:</span>
+            <button data-filter="all" class="doc-filter-btn active px-3 py-1 rounded-md bg-emerald-600 text-white font-medium">All Sections</button>
+            <button data-filter="chokepoint" class="doc-filter-btn px-3 py-1 rounded-md bg-slate-900 text-slate-300 hover:text-white border border-slate-800">Choke Points & Hormuz</button>
+            <button data-filter="fertilizer" class="doc-filter-btn px-3 py-1 rounded-md bg-slate-900 text-slate-300 hover:text-white border border-slate-800">N-P-K Concentration</button>
+            <button data-filter="wheat" class="doc-filter-btn px-3 py-1 rounded-md bg-slate-900 text-slate-300 hover:text-white border border-slate-800">Wheat & MENA</button>
+            <button data-filter="tech" class="doc-filter-btn px-3 py-1 rounded-md bg-slate-900 text-slate-300 hover:text-white border border-slate-800">CEA & Hydroponics</button>
+            <button data-filter="roadmap" class="doc-filter-btn px-3 py-1 rounded-md bg-slate-900 text-slate-300 hover:text-white border border-slate-800">Policy Roadmap</button>
+          </div>
+
+          <!-- Document Chapter Accordion List -->
+          <div id="explorer-chapters-container" class="space-y-4">
+            <!-- Dynamically populated or rendered structured chapters -->
+          </div>
+
+        </section>
+
+      </main>
+
+      <!-- Global Footer -->
+      <footer class="border-t border-slate-800/80 bg-slate-900/40 px-6 py-4 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+          <span>Agritech Diplomacy & Geopolitics Intelligence Platform &bull; Data current to early October 2026</span>
+        </div>
+        <div class="flex items-center gap-4 text-slate-400">
+          <span>Sources: FAO SOFI, GRFC, WTO-AXSMarine, IFPRI, USGS, Smil</span>
+        </div>
+      </footer>
+
+    </div>
+
+  </div>
+
+  <!-- Executive Brief Modal -->
+  <div id="modal-executive-brief" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-emerald-950 text-emerald-400 rounded-lg border border-emerald-800/50">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Executive Strategic Briefing</h3>
+            <p class="text-xs text-slate-400">Key takeaways for global policymakers and analysts</p>
+          </div>
+        </div>
+        <button id="close-brief-modal" class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-300 leading-relaxed custom-scrollbar">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+          <h4 class="font-bold text-emerald-400 text-sm">The 2026 Paradigm Shift</h4>
+          <p>
+            Between 2020 and 2026, the era of treating grain, oilseeds, and fertilizers as ordinary cheap commodities ended. Fertilizer and food are now strategic instruments of statecraft. Synthetic nitrogen supports ~50% of human life, and phosphate and potash have zero geological substitutes.
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="font-bold text-white text-sm">Three Core Theses</h4>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 font-bold">1.</span>
+              <span><strong>Leverage = Dependence &times; Non-Substitutability:</strong> Bilateral weaponization only collapses when the importer can substitute sources or produce alternatives locally.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 font-bold">2.</span>
+              <span><strong>The 2026 Hormuz Live Test:</strong> Unlike 2022, 2026 proved that conflict-driven closure of maritime choke points imposes identical coercive trauma on dependent farmers in India, Brazil, and East Africa without explicit embargoes.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 font-bold">3.</span>
+              <span><strong>Agritech Diplomacy as Shield:</strong> Controlled-environment farming (CEA) localizes perishable nutrition, while precision testing cuts synthetic N demand 10-20% and regional blending restores autonomy.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="p-4 bg-emerald-950/40 rounded-xl border border-emerald-800/40 space-y-1.5">
+          <h4 class="font-bold text-emerald-300 text-xs uppercase tracking-wider">3-Horizon Action Roadmap</h4>
+          <p class="text-[11px] text-slate-300">&bull; <strong>0-12 months:</strong> Emergency financing, Hormuz rerouting, expand supplier lists, track bans.</p>
+          <p class="text-[11px] text-slate-300">&bull; <strong>1-3 years:</strong> Agritech diplomacy financing window, regional fertilizer blending, soil testing campaigns.</p>
+          <p class="text-[11px] text-slate-300">&bull; <strong>3-10 years:</strong> Scale renewable-powered CEA, green ammonia decoupling, binding WTO export disciplines.</p>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-950/60 flex justify-end">
+        <button id="close-brief-modal-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold">
+          Understood & Acknowledged
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application Script -->
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "Agritech Diplomacy & Geopolitics Intelligence Platform",
+  "description": "Interactive strategic intelligence dashboard mapping food and fertilizer weaponization, supply choke points, and agritech resilience pathways based on the 2026 report.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
